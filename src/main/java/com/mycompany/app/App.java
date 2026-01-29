@@ -23,14 +23,11 @@ import com.esri.arcgisruntime.layers.FeatureLayer;
 import com.esri.arcgisruntime.mapping.BasemapStyle;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.view.MapView;
-import com.esri.arcgisruntime.symbology.SimpleFillSymbol;
-import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
-import com.esri.arcgisruntime.symbology.SimpleRenderer;
+import com.esri.arcgisruntime.symbology.*;
 import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.symbology.SimpleFillSymbol;
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
-import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
@@ -60,6 +57,17 @@ public class App extends Application {
         SimpleLineSymbol lineSymbol =
                 new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, color, 3);
         graphicsOverlay.getGraphics().add(new Graphic(line, lineSymbol));
+    }
+
+    public static void addNewText(String text, int size, Point point, Color color, GraphicsOverlay graphicsOverlay) {
+        TextSymbol textSymbol = new TextSymbol(
+                size,
+                text,
+                color,
+                TextSymbol.HorizontalAlignment.CENTER,
+                TextSymbol.VerticalAlignment.MIDDLE
+        );
+        graphicsOverlay.getGraphics().add(new Graphic(point, textSymbol));
     }
 
     @Override
@@ -96,6 +104,8 @@ public class App extends Application {
         addNewPoint(10,10, Color.AQUA, 10, graphicsOverlay, wgs84);
 
         addNewLine(new Point(0,0,wgs84), new Point(3,3, wgs84), Color.ORANGE, graphicsOverlay, wgs84);
+
+        addNewText("Hi", 12, new Point(20,20, wgs84), Color.BLACK, graphicsOverlay);
         // display the map by setting the map on the map view
         mapView.setMap(map);
     }
