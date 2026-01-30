@@ -33,6 +33,10 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import java.util.Scanner;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class App extends Application {
 
@@ -42,7 +46,7 @@ public class App extends Application {
 
         Application.launch(args);
     }
-    public static void addNewPoint(int x, int y, Color color, int radius, GraphicsOverlay graphicsOverlay, SpatialReference wgs84) {
+    public static void addNewPoint(double x, double y, Color color, int radius, GraphicsOverlay graphicsOverlay, SpatialReference wgs84) {
         Point point = new Point(x, y, wgs84);
         SimpleMarkerSymbol simpleMarkerSymbol =
                 new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, color, radius);
@@ -70,8 +74,20 @@ public class App extends Application {
         graphicsOverlay.getGraphics().add(new Graphic(point, textSymbol));
     }
 
+    public static ArrayList<String[]> readLatLongFile(String fileName) throws IOException {
+        File file = new File(fileName);
+        Scanner scanner = new Scanner(file);
+        ArrayList<String[]> data = new ArrayList<>();
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            String[] dataLine = line.split(",");
+            data.add(dataLine);
+        }
+        return data;
+    }
+
     @Override
-    public void start(Stage stage) {
+    public void start(Stage stage) throws IOException {
 
         // set the title and size of the stage and show it
         stage.setTitle("My Map App");
@@ -91,6 +107,9 @@ public class App extends Application {
         String yourApiKey = "AAPTxy8BH1VEsoebNVZXo8HurMRTbUOiwuaU_N-WVDnghMcbkfxEG6ZSD5OJE0-kbB7VaOltiLlC3MDK7brAu0jN0RCd_j-VpVaZ7qOAgvvyqoIh2BxPx4wQEJV5ElKHJ5XzdLOPJ-OFm5la5u9SjRlokcHJFg7dGmtqZpycxBTtrvUcr4csHrNg-Rg2GGztcGqg3yOV1s_EezV0U21plAQK9AuXFWnSxzSjXP_kjhKMxms.AT1_YKBFzOom";
         ArcGISRuntimeEnvironment.setApiKey(yourApiKey);
 
+        String latLongFileName = "/Users/frederikschabel/IdeaProjects/Aluminium-Recycling-Percentage-World-Map/LatitudeLongitude.csv";
+        ArrayList<String[]> latLong = readLatLongFile(latLongFileName);
+
         // create a MapView to display the map and add it to the stack pane
         mapView = new MapView();
         stackPane.getChildren().add(mapView);
@@ -101,11 +120,26 @@ public class App extends Application {
         mapView.getGraphicsOverlays().add(graphicsOverlay);
         SpatialReference wgs84 = SpatialReference.create(4326);
 
-        addNewPoint(10,10, Color.AQUA, 10, graphicsOverlay, wgs84);
+        //addNewPoint(10,10, Color.AQUA, 10, graphicsOverlay, wgs84);
 
-        addNewLine(new Point(0,0,wgs84), new Point(3,3, wgs84), Color.ORANGE, graphicsOverlay, wgs84);
+        //addNewLine(new Point(0,0,wgs84), new Point(3,3, wgs84), Color.ORANGE, graphicsOverlay, wgs84);
 
-        addNewText("Hi", 12, new Point(20,20, wgs84), Color.BLACK, graphicsOverlay);
+        //addNewText("Hi", 12, new Point(20,20, wgs84), Color.BLACK, graphicsOverlay);
+
+        for (int i = 1; i < latLong.size(); i++) {
+            String[] row = latLong.get(i);
+
+            // Skip rows with missing lat/lon (e.g. UM)
+            if (row.length < 3) continue;
+            if (row[1].trim().isEmpty() || row[2].trim().isEmpty()) continue;
+
+            double lat = Double.parseDouble(row[1].trim());
+            double lon = Double.parseDouble(row[2].trim());
+
+            // IMPORTANT: x = longitude, y = latitude
+            addNewPoint(lon, lat, Color.AQUA, 4, graphicsOverlay, wgs84);
+        }
+
         // display the map by setting the map on the map view
         mapView.setMap(map);
     }
